@@ -1,5 +1,6 @@
 /**
  * ASCII/Unicode 图表工具
+ * 支持多种图表类型
  */
 
 export class ChartUtil {
