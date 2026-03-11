@@ -153,14 +153,34 @@ export class GitHubDataSource {
    */
   getCodeStats(repoPath, since, until) {
     try {
-      const cmd = `cd "${repoPath}" && git diff \\
-        --shortstat \\
-        $(git log --since="${since}" --until="${until}" --pretty=format:"%H" | tail -1)^..HEAD \\
-        2>/dev/null || echo ""`;
-
-      const output = execSync(cmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
+      // 获取时间段内的提交列表
+      const commitsCmd = `cd "${repoPath}" && git log \
+        --since="${since}" \
+        --until="${until}" \
+        --pretty=format:"%H" \
+        --author="${this.username}"`;
       
-      // 解析 git diff --shortstat 输出
+      const commitsOutput = execSync(commitsCmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
+      const commits = commitsOutput.trim().split('\n').filter(line => line.trim());
+      
+      if (commits.length === 0) {
+        return { additions: 0, deletions: 0, filesChanged: 0 };
+      }
+
+      // 使用第一个提交的父提交到 HEAD 的 diff
+      let diffCmd;
+      if (commits.length === 1) {
+        // 单个提交：使用该提交的统计
+        diffCmd = `cd "${repoPath}" && git show --shortstat ${commits[0]}`;
+      } else {
+        // 多个提交：从第一个提交的父提交到 HEAD
+        const firstCommitParent = `${commits[commits.length - 1]}^`;
+        diffCmd = `cd "${repoPath}" && git diff --shortstat ${firstCommitParent}..HEAD 2>/dev/null || git show --shortstat ${commits[0]}`;
+      }
+
+      const output = execSync(diffCmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
+      
+      // 解析 git diff --shortstat 或 git show --shortstat 输出
       const additions = parseInt(output.match(/(\d+) insertions?/)?.[1] || 0);
       const deletions = parseInt(output.match(/(\d+) deletions?/)?.[1] || 0);
       const filesChanged = parseInt(output.match(/(\d+) files? changed/)?.[1] || 0);
@@ -176,12 +196,32 @@ export class GitHubDataSource {
    */
   getFileChanges(repoPath, since, until) {
     try {
-      const cmd = `cd "${repoPath}" && git diff \\
-        --numstat \\
-        $(git log --since="${since}" --until="${until}" --pretty=format:"%H" | tail -1)^..HEAD \\
-        2>/dev/null || echo ""`;
+      // 获取时间段内的提交列表
+      const commitsCmd = `cd "${repoPath}" && git log \
+        --since="${since}" \
+        --until="${until}" \
+        --pretty=format:"%H" \
+        --author="${this.username}"`;
+      
+      const commitsOutput = execSync(commitsCmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
+      const commits = commitsOutput.trim().split('\n').filter(line => line.trim());
+      
+      if (commits.length === 0) {
+        return [];
+      }
 
-      const output = execSync(cmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
+      // 使用第一个提交的父提交到 HEAD 的 diff
+      let diffCmd;
+      if (commits.length === 1) {
+        // 单个提交：使用该提交的文件变更
+        diffCmd = `cd "${repoPath}" && git show --numstat ${commits[0]}`;
+      } else {
+        // 多个提交：从第一个提交的父提交到 HEAD
+        const firstCommitParent = `${commits[commits.length - 1]}^`;
+        diffCmd = `cd "${repoPath}" && git diff --numstat ${firstCommitParent}..HEAD 2>/dev/null || git show --numstat ${commits[0]}`;
+      }
+
+      const output = execSync(diffCmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
       
       const files = [];
       const lines = output.trim().split('\n').filter(line => line.trim());
