@@ -392,3 +392,5 @@ export class EfficiencyScorer {
     return mins > 0 ? `${hours}小时${mins}分钟` : `${hours}小时`;
   }
 }
+
+// Test comment for file change verification
