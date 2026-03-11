@@ -84,7 +84,8 @@ async function test() {
       projects: []
     };
 
-    const report = generator.generate(mockData);
+    const result = generator.generate(mockData);
+    const report = result.report;
     console.log('✅ 报告生成成功');
     console.log('  报告长度:', report.length, '字符');
     console.log('  包含部分:', report.includes('今日概览') ? '概览 ✓' : '概览 ✗');
@@ -101,7 +102,7 @@ async function test() {
     console.log('✅ 飞书推送器初始化成功');
     
     // 测试卡片构建
-    const card = pusher.buildCard('# 测试\n\n**日期**: 2024-01-01');
+    const card = pusher.buildEnhancedCard('# 测试\n\n**日期**: 2024-01-01', {});
     console.log('  卡片结构:', Object.keys(card).join(', '));
   } catch (error) {
     console.error('❌ 飞书推送器失败:', error.message);
