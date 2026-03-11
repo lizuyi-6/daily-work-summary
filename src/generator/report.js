@@ -119,12 +119,40 @@ export class ReportGenerator {
    * 生成文件变更详情
    */
   generateFileChangesSection(github, localProjects) {
-    const allFileChanges = [
-      ...(github?.fileChanges || []),
-      ...(localProjects?.repositories?.flatMap(r => 
-        (r.fileChanges || []).map(f => ({ ...f, repo: r.name }))
-      ) || [])
-    ];
+    // 合并所有文件变更，使用 Map 去重（基于 filename + repo）
+    const fileChangesMap = new Map();
+    
+    // GitHub 文件变更
+    for (const file of github?.fileChanges || []) {
+      const key = `${file.filename}:${file.repo || 'github'}`;
+      if (!fileChangesMap.has(key)) {
+        fileChangesMap.set(key, { ...file });
+      } else {
+        // 合并变更
+        const existing = fileChangesMap.get(key);
+        existing.additions += file.additions;
+        existing.deletions += file.deletions;
+        existing.total += file.total;
+      }
+    }
+    
+    // 本地项目文件变更
+    for (const r of localProjects?.repositories || []) {
+      for (const file of r.fileChanges || []) {
+        const key = `${file.filename}:${r.name}`;
+        if (!fileChangesMap.has(key)) {
+          fileChangesMap.set(key, { ...file, repo: r.name });
+        } else {
+          // 合并变更
+          const existing = fileChangesMap.get(key);
+          existing.additions += file.additions;
+          existing.deletions += file.deletions;
+          existing.total += file.total;
+        }
+      }
+    }
+
+    const allFileChanges = Array.from(fileChangesMap.values());
 
     if (allFileChanges.length === 0) return '';
 
