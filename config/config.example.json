@@ -1,0 +1,70 @@
+{
+  "github": {
+    "username": "your-github-username",
+    "repositories": [
+      {
+        "name": "repo-name",
+        "path": "/path/to/local/repo",
+        "remote": "owner/repo-name"
+      }
+    ],
+    "includePrivate": true
+  },
+  "gitlab": {
+    "username": "your-gitlab-username",
+    "repositories": [
+      {
+        "name": "repo-name",
+        "path": "/path/to/local/repo",
+        "projectId": "12345678"
+      }
+    ],
+    "apiUrl": "https://gitlab.com/api/v4",
+    "token": "your-gitlab-token"
+  },
+  "feishu": {
+    "appId": "cli_xxxxxxxxxxxxxxxx",
+    "appSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "webhookUrl": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "userId": "ou_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "chatId": "oc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "localProjects": {
+    "enabled": true,
+    "scanPaths": [
+      "/path/to/projects",
+      "/another/project/path"
+    ],
+    "maxDepth": 2,
+    "excludePatterns": ["node_modules", ".git", "dist", "build", "vendor"]
+  },
+  "browserHistory": {
+    "enabled": false,
+    "browsers": ["chrome", "edge", "firefox"]
+  },
+  "report": {
+    "title": "📋 每日工作摘要",
+    "includeCodeStats": true,
+    "includeTimeAnalysis": true,
+    "includeCharts": true,
+    "includeWeeklyComparison": true,
+    "includeMonthlyComparison": true,
+    "timezone": "Asia/Shanghai",
+    "workHours": {
+      "start": 9,
+      "end": 18
+    }
+  },
+  "projects": [
+    {
+      "name": "项目名称",
+      "repo": "repo-name",
+      "category": "项目分类"
+    }
+  ],
+  "cron": {
+    "enabled": true,
+    "schedule": "0 8 * * *",
+    "timezone": "Asia/Shanghai"
+  }
+}

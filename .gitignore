@@ -1,0 +1,27 @@
+# 依赖
+node_modules/
+package-lock.json
+yarn.lock
+
+# 配置文件（包含敏感信息）
+config/config.json
+.env
+.env.local
+
+# 生成的报告
+reports/
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 测试输出
+coverage/
+.nyc_output/
